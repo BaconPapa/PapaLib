@@ -5,11 +5,6 @@ namespace PapaLib.IOC
 {
     public class Context
     {
-        public enum SingletonLoadMode
-        {
-            InTime,
-            Lazy
-        }
         private Dictionary<Type,Type> unloadedSingletonDic;
         private Dictionary<Type,object> singletonObjectDic;
         private Dictionary<Type,Type> prototypeDic;

@@ -90,7 +90,7 @@ namespace PapaLib.Tests.IOC
         [Fact]
         public void RegisterSingletonForClass_LazyMod()
         {
-            context.RegisterSingleton<LoadingChecker>(Context.SingletonLoadMode.Lazy);
+            context.RegisterSingleton<LoadingChecker>(SingletonLoadMode.Lazy);
             Assert.Equal(0, LoadingChecker.instantiateCount);
             context.GetInstance<LoadingChecker>();
             Assert.Equal(1, LoadingChecker.instantiateCount);
