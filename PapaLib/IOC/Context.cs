@@ -1,5 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using PapaLib.IOC.Attributes;
 
 namespace PapaLib.IOC
 {
@@ -24,7 +27,7 @@ namespace PapaLib.IOC
             if (IsSingletonRegistered(genericType)) return;
             if (loadMode == SingletonLoadMode.InTime)
             {
-                _singletonObjectDic.Add(genericType, Activator.CreateInstance(genericType));
+                _singletonObjectDic.Add(genericType, CreateInstance(genericType));
             }
             else
             {
@@ -65,21 +68,64 @@ namespace PapaLib.IOC
         public T GetInstance<T>() where T : class
         {
             var genericType = typeof(T);
-            if (_unloadedSingletonDic.ContainsKey(genericType))
+            return (T)FindInstance(genericType);
+        }
+        
+        private object CreateInstance(Type instanceType)
+        {
+            var instance = InstantiateWithFirstConstructor(instanceType);
+            ResolveReference(instanceType, instance);
+            return instance;
+        }
+
+        private object InstantiateWithFirstConstructor(Type instanceType)
+        {
+            var constructor = instanceType.GetConstructors()[0];
+            var parameters = constructor.GetParameters();
+            var parameterObjects = new object[parameters.Length];
+            for (var i = 0; i < parameters.Length; i++)
             {
-                var instance = (T)Activator.CreateInstance(_unloadedSingletonDic[genericType]);
-                _unloadedSingletonDic.Remove(genericType);
-                _singletonObjectDic[genericType] = instance;
+                var parameterType = parameters[i].ParameterType;
+                parameterObjects[i] = FindInstance(parameterType) ?? throw new Exception();
+            }
+            return constructor.Invoke(parameterObjects);
+        }
+        
+        private void ResolveReference(IReflect instanceType, object instance)
+        {
+            var fields = instanceType.GetFields(
+                BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic
+            );
+            var referencedFields = fields
+                .Where(fieldInfo => Attribute.IsDefined(fieldInfo, typeof(ReferenceAttribute)));
+            foreach (var info in referencedFields)
+            {
+                var referenceType = info.FieldType;
+                var referenceInstance = FindInstance(referenceType) ?? throw new Exception();
+                info.SetValue(instance, referenceInstance);
+            }
+        }
+
+        private object FindInstance(Type instanceType)
+        {
+            if (_singletonObjectDic.TryGetValue(instanceType, out var instance))
+            {
                 return instance;
             }
-            if (_singletonObjectDic.ContainsKey(genericType))
+
+            if (_unloadedSingletonDic.TryGetValue(instanceType, out var unInstantiateType))
             {
-                return (T)_singletonObjectDic[genericType];
+                var tempInstance = CreateInstance(unInstantiateType);
+                _unloadedSingletonDic.Remove(instanceType);
+                _singletonObjectDic.Add(instanceType, tempInstance);
+                return tempInstance;
             }
-            if (_prototypeDic.ContainsKey(genericType))
+
+            if (_prototypeDic.TryGetValue(instanceType, out var proto))
             {
-                return (T)Activator.CreateInstance(_prototypeDic[genericType]);
+                return CreateInstance(proto);
             }
+
             return default;
         }
     }

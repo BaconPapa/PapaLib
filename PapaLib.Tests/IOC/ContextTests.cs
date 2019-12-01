@@ -1,5 +1,6 @@
 using System;
 using PapaLib.IOC;
+using PapaLib.IOC.Attributes;
 using Xunit;
 
 namespace PapaLib.Tests.IOC
@@ -14,7 +15,7 @@ namespace PapaLib.Tests.IOC
         }
     }
 
-    public class ContextInstanceReferenceTests : ContextTests
+    public class ContextRegisterAndInstanceTests : ContextTests
     {
         private interface IGuidGenerator
         {
@@ -94,6 +95,50 @@ namespace PapaLib.Tests.IOC
             Assert.Equal(0, LoadingChecker.InstantiateCount);
             Context.GetInstance<LoadingChecker>();
             Assert.Equal(1, LoadingChecker.InstantiateCount);
+        }
+    }
+
+    public class ContextRegisterWithDependencyTests : ContextTests
+    {
+        private class Adder
+        {
+            public int Calculate(int a, int b) => a + b;
+        }
+
+        private class ConstructorCalculator
+        {
+            private readonly Adder _adder;
+            public ConstructorCalculator(Adder adder)
+            {
+                _adder = adder;
+            }
+
+            public int Add(int a, int b) => _adder.Calculate(a, b);
+        }
+
+        [Fact]
+        public void Singleton_InTime_Single_Dependency_From_Constructor()
+        {
+            Context.RegisterSingleton<Adder>();
+            Context.RegisterSingleton<ConstructorCalculator>();
+            var calculator = Context.GetInstance<ConstructorCalculator>();
+            Assert.Equal(2, calculator.Add(1, 1));
+        }
+
+        private class ReferenceFieldCalculator
+        {
+            [Reference]
+            private Adder _adder;
+            public int Add(int a, int b) => _adder.Calculate(a, b);
+        }
+
+        [Fact]
+        public void Singleton_InTime_Single_Dependency_Field_Reference()
+        {
+            Context.RegisterSingleton<Adder>();
+            Context.RegisterSingleton<ReferenceFieldCalculator>();
+            var calculator = Context.GetInstance<ReferenceFieldCalculator>();
+            Assert.Equal(2, calculator.Add(1, 1));
         }
     }
 }
