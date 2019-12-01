@@ -104,6 +104,19 @@ namespace PapaLib.IOC
                 var referenceInstance = FindInstance(referenceType) ?? throw new Exception();
                 info.SetValue(instance, referenceInstance);
             }
+
+            var properties = instanceType.GetProperties(
+                    BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic
+            );
+            var referencedProperties = properties
+                .Where(fieldInfo => Attribute.IsDefined(fieldInfo, typeof(ReferenceAttribute)));
+            foreach (var info in referencedProperties)
+            {
+                var referenceType = info.PropertyType;
+                var referenceInstance = FindInstance(referenceType) ?? throw new Exception();
+                info.SetValue(instance, referenceInstance);
+            }
+            
         }
 
         private object FindInstance(Type instanceType)

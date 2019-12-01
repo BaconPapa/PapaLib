@@ -140,5 +140,21 @@ namespace PapaLib.Tests.IOC
             var calculator = Context.GetInstance<ReferenceFieldCalculator>();
             Assert.Equal(2, calculator.Add(1, 1));
         }
+        
+        private class ReferencePropertyCalculator
+        {
+            [Reference]
+            private Adder Adder { get; set; }
+            public int Add(int a, int b) => Adder.Calculate(a, b);
+        }
+
+        [Fact]
+        public void Singleton_InTime_Single_Dependency_Property_Reference()
+        {
+            Context.RegisterSingleton<Adder>();
+            Context.RegisterSingleton<ReferencePropertyCalculator>();
+            var calculator = Context.GetInstance<ReferencePropertyCalculator>();
+            Assert.Equal(2, calculator.Add(1, 1));
+        }
     }
 }
