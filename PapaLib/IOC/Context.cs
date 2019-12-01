@@ -5,18 +5,18 @@ namespace PapaLib.IOC
 {
     public class Context
     {
-        private Dictionary<Type,Type> unloadedSingletonDic;
-        private Dictionary<Type,object> singletonObjectDic;
-        private Dictionary<Type,Type> prototypeDic;
+        private readonly Dictionary<Type,Type> _unloadedSingletonDic;
+        private readonly Dictionary<Type,object> _singletonObjectDic;
+        private readonly Dictionary<Type,Type> _prototypeDic;
         public Context()
         {
-            unloadedSingletonDic = new Dictionary<Type, Type>();
-            singletonObjectDic = new Dictionary<Type, object>();
-            prototypeDic = new Dictionary<Type, Type>();
+            _unloadedSingletonDic = new Dictionary<Type, Type>();
+            _singletonObjectDic = new Dictionary<Type, object>();
+            _prototypeDic = new Dictionary<Type, Type>();
         }
         private bool IsSingletonRegistered(Type type)
         {
-            return singletonObjectDic.ContainsKey(type) || unloadedSingletonDic.ContainsKey(type);
+            return _singletonObjectDic.ContainsKey(type) || _unloadedSingletonDic.ContainsKey(type);
         }
         public void RegisterSingleton<T>(SingletonLoadMode loadMode = SingletonLoadMode.InTime) where T : class
         {
@@ -24,61 +24,61 @@ namespace PapaLib.IOC
             if (IsSingletonRegistered(genericType)) return;
             if (loadMode == SingletonLoadMode.InTime)
             {
-                singletonObjectDic.Add(genericType, Activator.CreateInstance(genericType));
+                _singletonObjectDic.Add(genericType, Activator.CreateInstance(genericType));
             }
             else
             {
-                unloadedSingletonDic.Add(genericType, genericType);
+                _unloadedSingletonDic.Add(genericType, genericType);
             }
         }
 
         public void RegisterSingleton<TInterface, TInstance>(SingletonLoadMode loadMode = SingletonLoadMode.InTime) where TInstance : TInterface
         {
             var interfaceType = typeof(TInterface);
-            if (singletonObjectDic.ContainsKey(interfaceType)) return;
+            if (_singletonObjectDic.ContainsKey(interfaceType)) return;
             var instanceType = typeof(TInstance);
             if (loadMode == SingletonLoadMode.InTime)
             {
-                singletonObjectDic.Add(interfaceType, Activator.CreateInstance(instanceType));
+                _singletonObjectDic.Add(interfaceType, Activator.CreateInstance(instanceType));
             }
             else
             {
-                unloadedSingletonDic.Add(interfaceType, instanceType);
+                _unloadedSingletonDic.Add(interfaceType, instanceType);
             }
         }
 
         public void RegisterPrototype<T>() where T : class
         {
             var genericType = typeof(T);
-            if (prototypeDic.ContainsKey(genericType)) return;
-            prototypeDic.Add(genericType, genericType);
+            if (_prototypeDic.ContainsKey(genericType)) return;
+            _prototypeDic.Add(genericType, genericType);
         }
 
         public void RegisterPrototype<TInterface, TInstance>() where TInstance : TInterface
         {
             var genericType = typeof(TInterface);
-            if (prototypeDic.ContainsKey(genericType)) return;
+            if (_prototypeDic.ContainsKey(genericType)) return;
             var instanceType = typeof(TInstance);
-            prototypeDic.Add(genericType, instanceType);
+            _prototypeDic.Add(genericType, instanceType);
         }
 
         public T GetInstance<T>() where T : class
         {
             var genericType = typeof(T);
-            if (unloadedSingletonDic.ContainsKey(genericType))
+            if (_unloadedSingletonDic.ContainsKey(genericType))
             {
-                var instance = (T)Activator.CreateInstance(unloadedSingletonDic[genericType]);
-                unloadedSingletonDic.Remove(genericType);
-                singletonObjectDic[genericType] = instance;
+                var instance = (T)Activator.CreateInstance(_unloadedSingletonDic[genericType]);
+                _unloadedSingletonDic.Remove(genericType);
+                _singletonObjectDic[genericType] = instance;
                 return instance;
             }
-            if (singletonObjectDic.ContainsKey(genericType))
+            if (_singletonObjectDic.ContainsKey(genericType))
             {
-                return (T)singletonObjectDic[genericType];
+                return (T)_singletonObjectDic[genericType];
             }
-            if (prototypeDic.ContainsKey(genericType))
+            if (_prototypeDic.ContainsKey(genericType))
             {
-                return (T)Activator.CreateInstance(prototypeDic[genericType]);
+                return (T)Activator.CreateInstance(_prototypeDic[genericType]);
             }
             return default;
         }

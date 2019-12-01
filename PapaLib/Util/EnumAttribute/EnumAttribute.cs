@@ -8,9 +8,9 @@ namespace PapaLib.Util.EnumAttribute
         protected EnumAttribute() {}
     }
 
-    public interface IProperty<T>
+    public interface IProperty<out T>
     {
-        T value {get;}
+        T Value {get;}
     }
 }
 

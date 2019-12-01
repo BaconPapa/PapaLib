@@ -5,42 +5,42 @@ namespace PapaLib.Event
 {
     public class EventController
     {
-        private Dictionary<string, List<BaseListener>> eventListenersDic;
+        private readonly Dictionary<string, List<BaseListener>> _eventListenersDic;
 
         public EventController()
         {
-            eventListenersDic = new Dictionary<string, List<BaseListener>>();
+            _eventListenersDic = new Dictionary<string, List<BaseListener>>();
         }
 
         #region public methods
         public void AddEventListener(string eventType, Action eventListener)
         {
             EventTypeCheck(eventType);
-            eventListenersDic[eventType].Add(new EventListener(eventListener));
+            _eventListenersDic[eventType].Add(new EventListener(eventListener));
         }
 
-        public void AddEventListener<T>(string eventType, Action<T> eventListener)
+        public void AddEventListener<TArg0>(string eventType, Action<TArg0> eventListener)
         {
             EventTypeCheck(eventType);
-            eventListenersDic[eventType].Add(new EventListener<T>(eventListener));
+            _eventListenersDic[eventType].Add(new EventListener<TArg0>(eventListener));
         }
 
-        public void AddEventListener<T, U>(string eventType, Action<T, U> eventListener)
+        public void AddEventListener<TArg0, TArg1>(string eventType, Action<TArg0, TArg1> eventListener)
         {
             EventTypeCheck(eventType);
-            eventListenersDic[eventType].Add(new EventListener<T, U>(eventListener));
+            _eventListenersDic[eventType].Add(new EventListener<TArg0, TArg1>(eventListener));
         }
 
-        public void AddEventListener<T, U, V>(string eventType, Action<T, U, V> eventListener)
+        public void AddEventListener<TArg0, TArg1, TArg2>(string eventType, Action<TArg0, TArg1, TArg2> eventListener)
         {
             EventTypeCheck(eventType);
-            eventListenersDic[eventType].Add(new EventListener<T, U, V>(eventListener));
+            _eventListenersDic[eventType].Add(new EventListener<TArg0, TArg1, TArg2>(eventListener));
         }
 
-        public void AddEventListener<T, U, V, W>(string eventType, Action<T, U, V, W> eventListener)
+        public void AddEventListener<TArg0, TArg1, TArg2, TArg3>(string eventType, Action<TArg0, TArg1, TArg2, TArg3> eventListener)
         {
             EventTypeCheck(eventType);
-            eventListenersDic[eventType].Add(new EventListener<T, U, V, W>(eventListener));
+            _eventListenersDic[eventType].Add(new EventListener<TArg0, TArg1, TArg2, TArg3>(eventListener));
         }
 
         public void RemoveEventListener(string eventType, Action eventListener)
@@ -48,22 +48,22 @@ namespace PapaLib.Event
             RemoveCallback(eventType, eventListener);
         }
 
-        public void RemoveEventListener<T>(string eventType, Action<T> eventListener)
+        public void RemoveEventListener<TArg0>(string eventType, Action<TArg0> eventListener)
         {
             RemoveCallback(eventType, eventListener);
         }
 
-        public void RemoveEventListener<T, U>(string eventType, Action<T, U> eventListener)
+        public void RemoveEventListener<TArg0, TArg1>(string eventType, Action<TArg0, TArg1> eventListener)
         {
             RemoveCallback(eventType, eventListener);
         }
 
-        public void RemoveEventListener<T, U, V>(string eventType, Action<T, U, V> eventListener)
+        public void RemoveEventListener<TArg0, TArg1, TArg2>(string eventType, Action<TArg0, TArg1, TArg2> eventListener)
         {
             RemoveCallback(eventType, eventListener);
         }
 
-        public void RemoveEventListener<T, U, V, W>(string eventType, Action<T, U, V, W> eventListener)
+        public void RemoveEventListener<TArg0, TArg1, TArg2, TArg3>(string eventType, Action<TArg0, TArg1, TArg2, TArg3> eventListener)
         {
             RemoveCallback(eventType, eventListener);
         }
@@ -73,63 +73,57 @@ namespace PapaLib.Event
             DispatchEvent<EventListener>(eventType);
         }
 
-        public void DispatchEvent<T>(string eventType, T arg)
+        public void DispatchEvent<TArg0>(string eventType, TArg0 arg)
         {
-            DispatchEvent<EventListener<T>>(eventType, arg);
+            DispatchEvent<EventListener<TArg0>>(eventType, arg);
         }
 
-        public void DispatchEvent<T, U>(string eventType, T arg0, U arg1)
+        public void DispatchEvent<TArg0, TArg1>(string eventType, TArg0 arg0, TArg1 arg1)
         {
-            DispatchEvent<EventListener<T, U>>(eventType, arg0, arg1);
+            DispatchEvent<EventListener<TArg0, TArg1>>(eventType, arg0, arg1);
         }
 
-        public void DispatchEvent<T, U, V>(string eventType, T arg0, U arg1, V arg2)
+        public void DispatchEvent<TArg0, TArg1, TArg2>(string eventType, TArg0 arg0, TArg1 arg1, TArg2 arg2)
         {
-            DispatchEvent<EventListener<T, U, V>>(eventType, arg0, arg1, arg2);
+            DispatchEvent<EventListener<TArg0, TArg1, TArg2>>(eventType, arg0, arg1, arg2);
         }
 
-        public void DispatchEvent<T, U, V, W>(string eventType, T arg0, U arg1, V arg2, W arg3)
+        public void DispatchEvent<TArg0, TArg1, TArg2, TArg3>(string eventType, TArg0 arg0, TArg1 arg1, TArg2 arg2, TArg3 arg3)
         {
-            DispatchEvent<EventListener<T, U, V, W>>(eventType, arg0, arg1, arg2, arg3);
+            DispatchEvent<EventListener<TArg0, TArg1, TArg2, TArg3>>(eventType, arg0, arg1, arg2, arg3);
         }
         #endregion
 
         #region private methods
         private void EventTypeCheck(string eventType)
         {
-            if (!eventListenersDic.ContainsKey(eventType))
+            if (!_eventListenersDic.ContainsKey(eventType))
             {
-                eventListenersDic[eventType] = new List<BaseListener>();
+                _eventListenersDic[eventType] = new List<BaseListener>();
             }
         }
 
         private void RemoveCallback<TCallback>(string eventType, TCallback callBack) where TCallback : Delegate
         {
-            if (eventListenersDic.TryGetValue(eventType, out var eventListeners))
+            if (!_eventListenersDic.TryGetValue(eventType, out var eventListeners)) return;
+            var eventCount = eventListeners.Count;
+            for (var i = 0; i < eventCount; i++)
             {
-                var eventCount = eventListeners.Count;
-                for (int i = 0; i < eventCount; i++)
-                {
-                    if (eventListeners[i].hasCallback(callBack))
-                    {
-                        eventListeners.RemoveAt(i);
-                        break;
-                    }
-                }
+                if (!eventListeners[i].HasCallback(callBack)) continue;
+                eventListeners.RemoveAt(i);
+                break;
             }
         }
 
         private void DispatchEvent<TEventListener>(string eventType, params object[] args) where TEventListener : BaseListener
         {
-            if (eventListenersDic.TryGetValue(eventType, out var eventListeners))
+            if (!_eventListenersDic.TryGetValue(eventType, out var eventListeners)) return;
+            var eventCount = eventListeners.Count;
+            for (var i = 0; i < eventCount; i++)
             {
-                var eventCount = eventListeners.Count;
-                for (var i = 0; i < eventCount; i++)
+                if (eventListeners[i] is TEventListener)
                 {
-                    if (eventListeners[i] is TEventListener)
-                    {
-                        eventListeners[i].Invoke(args);
-                    }
+                    eventListeners[i].Invoke(args);
                 }
             }
         }

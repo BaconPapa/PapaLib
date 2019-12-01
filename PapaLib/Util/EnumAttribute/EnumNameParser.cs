@@ -5,17 +5,17 @@ namespace PapaLib.Util.EnumAttribute
 {
     public static class EnumAttributeExtension
     {
-        private static Dictionary<Enum, Dictionary<Type, object>> enumPropertyBuffer = new Dictionary<Enum, Dictionary<Type, object>>();
+        private static readonly Dictionary<Enum, Dictionary<Type, object>> EnumPropertyBuffer = new Dictionary<Enum, Dictionary<Type, object>>();
         public static TValue AttributeProperty<TEnum, TAttribute, TValue>(this TEnum enumValue)
             where TEnum : Enum
             where TAttribute : EnumAttribute, IProperty<TValue>
         {
-            if (!enumPropertyBuffer.ContainsKey(enumValue))
+            if (!EnumPropertyBuffer.ContainsKey(enumValue))
             {
-                enumPropertyBuffer.Add(enumValue, new Dictionary<Type, object>());
+                EnumPropertyBuffer.Add(enumValue, new Dictionary<Type, object>());
             }
             var attributeType = typeof(TAttribute);
-            var propertyBuffer = enumPropertyBuffer[enumValue];
+            var propertyBuffer = EnumPropertyBuffer[enumValue];
             if (propertyBuffer.ContainsKey(attributeType)) return (TValue)propertyBuffer[attributeType];
             var enumType = typeof(TEnum);
             var enumFieldName = Enum.GetName(enumType, enumValue);
@@ -24,7 +24,7 @@ namespace PapaLib.Util.EnumAttribute
             if (field.IsDefined(attributeType, true))
             {
                 var attribute = (TAttribute)Attribute.GetCustomAttribute(field, attributeType);
-                propertyValue = attribute.value;
+                propertyValue = attribute.Value;
             }
             propertyBuffer[attributeType] = propertyValue;
             return propertyValue;

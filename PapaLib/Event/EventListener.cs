@@ -9,19 +9,20 @@ namespace PapaLib.Event
         {
             return Call(args);
         }
-        public abstract bool hasCallback(object callback);
+        public abstract bool HasCallback(object callback);
     }
 
     public abstract class BaseListener<TCallback> : BaseListener where TCallback : Delegate
     {
-        public TCallback callback { get; }
-        public BaseListener(TCallback callback)
+        protected TCallback Callback { get; }
+
+        protected BaseListener(TCallback callback)
         {
-            this.callback = callback;
+            this.Callback = callback;
         }
-        public override bool hasCallback(object callback)
+        public override bool HasCallback(object callback)
         {
-            return this.callback == callback;
+            return Callback == (TCallback) callback;
         }
     }
 
@@ -30,47 +31,47 @@ namespace PapaLib.Event
         public EventListener(Action callback) : base(callback) { }
         protected override object Call(object[] args)
         {
-            callback();
+            Callback();
             return null;
         }
     }
 
-    public sealed class EventListener<T> : BaseListener<Action<T>>
+    public sealed class EventListener<TArg> : BaseListener<Action<TArg>>
     {
-        public EventListener(Action<T> callback) : base(callback) { }
+        public EventListener(Action<TArg> callback) : base(callback) { }
         protected override object Call(object[] args)
         {
-            callback((T)args[0]);
+            Callback((TArg)args[0]);
             return null;
         }
     }
 
-    public sealed class EventListener<T, U> : BaseListener<Action<T, U>>
+    public sealed class EventListener<TArg0, TArg1> : BaseListener<Action<TArg0, TArg1>>
     {
-        public EventListener(Action<T, U> callback) : base(callback) { }
+        public EventListener(Action<TArg0, TArg1> callback) : base(callback) { }
         protected override object Call(object[] args)
         {
-            callback((T)args[0], (U)args[1]);
+            Callback((TArg0)args[0], (TArg1)args[1]);
             return null;
         }
     }
 
-    public sealed class EventListener<T, U, V> : BaseListener<Action<T, U, V>>
+    public sealed class EventListener<TArg0, TArg1, TAgr2> : BaseListener<Action<TArg0, TArg1, TAgr2>>
     {
-        public EventListener(Action<T, U, V> callback) : base(callback) { }
+        public EventListener(Action<TArg0, TArg1, TAgr2> callback) : base(callback) { }
         protected override object Call(object[] args)
         {
-            callback((T)args[0], (U)args[1], (V)args[2]);
+            Callback((TArg0)args[0], (TArg1)args[1], (TAgr2)args[2]);
             return null;
         }
     }
 
-    public sealed class EventListener<T, U, V, W> : BaseListener<Action<T, U, V, W>>
+    public sealed class EventListener<TArg0, TArg1, TArg2, TArg3> : BaseListener<Action<TArg0, TArg1, TArg2, TArg3>>
     {
-        public EventListener(Action<T, U, V, W> callback) : base(callback) { }
+        public EventListener(Action<TArg0, TArg1, TArg2, TArg3> callback) : base(callback) { }
         protected override object Call(object[] args)
         {
-            callback((T)args[0], (U)args[1], (V)args[2], (W)args[3]);
+            Callback((TArg0)args[0], (TArg1)args[1], (TArg2)args[2], (TArg3)args[3]);
             return null;
         }
     }

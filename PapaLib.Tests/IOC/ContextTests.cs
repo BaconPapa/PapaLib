@@ -6,94 +6,94 @@ namespace PapaLib.Tests.IOC
 {
     public class ContextTests
     {
-        protected Context context;
+        protected readonly Context Context;
 
         public ContextTests()
         {
-            context = new Context();
+            Context = new Context();
         }
     }
 
     public class ContextInstanceReferenceTests : ContextTests
     {
-        private interface IGUIDGenerator
+        private interface IGuidGenerator
         {
-            Guid guid {get;}
+            Guid Guid {get;}
         }
 
-        private class GUIDGenerator : IGUIDGenerator
+        private class GuidGenerator : IGuidGenerator
         {
-            public Guid guid { get; }
-            public GUIDGenerator()
+            public Guid Guid { get; }
+            public GuidGenerator()
             {
-                guid = Guid.NewGuid();
+                Guid = Guid.NewGuid();
             }
         }
 
         [Fact]
         public void RegisterSingletonForClass_GetInstance_Twice()
         {
-            context.RegisterSingleton<GUIDGenerator>();
-            var instance1 = context.GetInstance<GUIDGenerator>();
-            var instance2 = context.GetInstance<GUIDGenerator>();
-            Assert.True(instance1.guid == instance2.guid);
+            Context.RegisterSingleton<GuidGenerator>();
+            var instance1 = Context.GetInstance<GuidGenerator>();
+            var instance2 = Context.GetInstance<GuidGenerator>();
+            Assert.True(instance1.Guid == instance2.Guid);
         }
 
         [Fact]
         public void RegisterPrototypeForClass_GetInstance_Twice()
         {
-            context.RegisterPrototype<GUIDGenerator>();
-            var instance1 = context.GetInstance<GUIDGenerator>();
-            var instance2 = context.GetInstance<GUIDGenerator>();
-            Assert.False(instance1.guid == instance2.guid);
+            Context.RegisterPrototype<GuidGenerator>();
+            var instance1 = Context.GetInstance<GuidGenerator>();
+            var instance2 = Context.GetInstance<GuidGenerator>();
+            Assert.False(instance1.Guid == instance2.Guid);
         }
 
         [Fact]
         public void RegisterSingletonForInterface_GetInstance_Twice()
         {
-            context.RegisterSingleton<IGUIDGenerator, GUIDGenerator>();
-            var instance1 = context.GetInstance<IGUIDGenerator>();
-            var instance2 = context.GetInstance<IGUIDGenerator>();
-            Assert.True(instance1.guid == instance2.guid);
+            Context.RegisterSingleton<IGuidGenerator, GuidGenerator>();
+            var instance1 = Context.GetInstance<IGuidGenerator>();
+            var instance2 = Context.GetInstance<IGuidGenerator>();
+            Assert.True(instance1.Guid == instance2.Guid);
         }
 
         [Fact]
         public void RegisterPrototypeForInterface_GetInstance_Twice()
         {
-            context.RegisterPrototype<IGUIDGenerator, GUIDGenerator>();
-            var instance1 = context.GetInstance<IGUIDGenerator>();
-            var instance2 = context.GetInstance<IGUIDGenerator>();
-            Assert.False(instance1.guid == instance2.guid);
+            Context.RegisterPrototype<IGuidGenerator, GuidGenerator>();
+            var instance1 = Context.GetInstance<IGuidGenerator>();
+            var instance2 = Context.GetInstance<IGuidGenerator>();
+            Assert.False(instance1.Guid == instance2.Guid);
         }
     }
 
     public class ContextSingletonLoadModTests : ContextTests
     {
-        public ContextSingletonLoadModTests() : base()
+        public ContextSingletonLoadModTests()
         {
-            LoadingChecker.instantiateCount = 0;
+            LoadingChecker.InstantiateCount = 0;
         }
         private class LoadingChecker
         {
-            public static int instantiateCount = 0;
+            public static int InstantiateCount;
             public LoadingChecker()
             {
-                instantiateCount ++;
+                InstantiateCount ++;
             }
         }
         [Fact]
         public void RegisterSingletonForClass_InTimeMod()
         {
-            context.RegisterSingleton<LoadingChecker>();
-            Assert.Equal(1, LoadingChecker.instantiateCount);
+            Context.RegisterSingleton<LoadingChecker>();
+            Assert.Equal(1, LoadingChecker.InstantiateCount);
         }
         [Fact]
         public void RegisterSingletonForClass_LazyMod()
         {
-            context.RegisterSingleton<LoadingChecker>(SingletonLoadMode.Lazy);
-            Assert.Equal(0, LoadingChecker.instantiateCount);
-            context.GetInstance<LoadingChecker>();
-            Assert.Equal(1, LoadingChecker.instantiateCount);
+            Context.RegisterSingleton<LoadingChecker>(SingletonLoadMode.Lazy);
+            Assert.Equal(0, LoadingChecker.InstantiateCount);
+            Context.GetInstance<LoadingChecker>();
+            Assert.Equal(1, LoadingChecker.InstantiateCount);
         }
     }
 }

@@ -8,10 +8,10 @@ namespace PapaLib.Tests.Util
         private class IsNormalAttackAttribute : EnumAttribute {}
         private class AttackAttribute : EnumAttribute, IProperty<int>
         {
-            public int value { get; }
+            public int Value { get; }
             public AttackAttribute(int value)
             {
-                this.value = value;
+                this.Value = value;
             }
         }
         private enum Skills
