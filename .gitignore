@@ -77,3 +77,4 @@ ModelManifest.xml
 *.bak
 
 /.vscode/
+/.idea/
