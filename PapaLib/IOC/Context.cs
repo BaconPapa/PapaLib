@@ -179,18 +179,13 @@ namespace PapaLib.IOC
                 return tempInstance;
             }
 
-            if (_prototypeDic.TryGetValue(typeName, out var proto))
-            {
-                return CreateInstance(proto);
-            }
-
-            return default;
+            return _prototypeDic.TryGetValue(typeName, out var proto) ? CreateInstance(proto) : default;
         }
         
         private class BeanReference
         {
             public Type Type { get; }
-            public object[] Dependencies { get; }
+            private object[] Dependencies { get; }
             public Type[] DependencyTypes { get; }
             private int ValidDependencies { get; set; }
             private MethodInfo BeanMethods { get; }
