@@ -1,4 +1,5 @@
 using PapaLib.IOC;
+using PapaLib.IOC.Enums;
 using Xunit;
 
 namespace PapaLib.Tests.IOC
@@ -36,7 +37,7 @@ namespace PapaLib.Tests.IOC
         [Fact]
         public void RegisterSingletonForClass_LazyMod()
         {
-            Context.RegisterSingleton<LoadingChecker>(SingletonLoadMode.Lazy);
+            Context.RegisterSingleton<LoadingChecker>(SingletonLoadMod.Lazy);
             Assert.Equal(0, LoadingChecker.InstantiateCount);
             Context.GetInstance<LoadingChecker>();
             Assert.Equal(1, LoadingChecker.InstantiateCount);
